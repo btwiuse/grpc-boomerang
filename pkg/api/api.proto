@@ -19,4 +19,4 @@ message HelloStreamResponse {
 service Api {
     rpc Hello(HelloRequest) returns (HelloResponse) {}
     rpc HelloStream(HelloStreamRequest) returns (stream HelloStreamResponse) {}
- }
+}
