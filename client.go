@@ -13,12 +13,13 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/btwiuse/grpc-boomerang/pkg/api"
 	"github.com/btwiuse/wetty/localcmd"
 )
 
-var addr = flag.String("addr", "localhost:8080", "tcp service address")
+var addr = flag.String("addr", "localhost:8443", "tcp service address")
 var cancel func()
 var ctx context.Context
 
@@ -33,7 +34,15 @@ func main() {
 
 	log.Printf("connecting to %s from %s\n", *addr, c.LocalAddr())
 
-	grpcServer := grpc.NewServer()
+	creds, err := credentials.NewServerTLSFromFile("localhost.pem", "localhost-key.pem")
+	if err != nil {
+		log.Fatalln("bad credentials:", err)
+	}
+
+	options := []grpc.ServerOption{
+		grpc.Creds(creds),
+	}
+	grpcServer := grpc.NewServer(options...)
 	api.RegisterApiServer(grpcServer, &apiService{})
 	grpcServer.Serve(&singleListener{pipe(c)})
 }

@@ -11,12 +11,14 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/btwiuse/grpc-boomerang/pkg/api"
 )
 
 var (
-	addr = flag.String("addr", "localhost:8080", "http service address")
+	addr = flag.String("addr", "localhost:8443", "http service address")
+	creds credentials.TransportCredentials
 )
 
 func main() {
@@ -28,6 +30,12 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	creds, err = credentials.NewClientTLSFromFile("localhost.pem", "localhost")
+	if err != nil {
+		log.Fatalln("bad credentials:", err)
+	}
+
 	for {
 		c, err := ln.Accept()
 		if err != nil {
@@ -65,14 +73,16 @@ func pipe(c net.Conn) (context.Context, net.Conn) {
 }
 
 func toClientConn(c net.Conn) *grpc.ClientConn {
-	cc, err := grpc.Dial("",
-		grpc.WithInsecure(),
+	options := []grpc.DialOption{
+		grpc.WithTransportCredentials(creds),
 		grpc.WithContextDialer(
 			func(ctx context.Context, s string) (net.Conn, error) {
 				return c, nil
 			},
 		),
-	)
+	}
+
+	cc, err := grpc.Dial("", options...)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
