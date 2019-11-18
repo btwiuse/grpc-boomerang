@@ -10,7 +10,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"os/signal"
 	"time"
 
 	"google.golang.org/grpc"
@@ -23,7 +22,7 @@ var addr = flag.String("addr", "localhost:8080", "tcp service address")
 /*
 [client]
 
-websocketSide  <= io.Pipe =>  grpcSide = (grpc.Serve)
+tcpSide <= io.Pipe =>  grpcSide = (grpc.Serve)
 
 (raw data)
 
@@ -42,53 +41,37 @@ func main() {
 	flag.Parse()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
-
-	grpcSide, websocketSide := net.Pipe()
-
 	log.Printf("connecting to %s", *addr)
 
 	c, err := net.Dial("tcp", *addr)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
-	defer c.Close()
 
-	go func() {
-		defer c.Close()
-		io.Copy(websocketSide, c)
-	}()
-
-	go func() {
-		defer c.Close()
-		io.Copy(c, websocketSide)
-	}()
+	grpcHandler := &apiService{}
 
 	// client side grpc server over net.Conn over websocket.Conn
-	l := &singleListener{grpcSide}
+	l := &singleListener{c}
 	grpcServer := grpc.NewServer()
-	api.RegisterApiServer(grpcServer, &apiService{})
-	err = grpcServer.Serve(l)
-	if err != nil {
-		log.Println("grpcServer.Serve", err)
-	}
-	select {}
+	api.RegisterApiServer(grpcServer, grpcHandler)
+	grpcServer.Serve(l)
 }
 
+// single listener converts/upgrades the current tcp connection into grpc
+// ============================= gender changer impl
 type singleListener struct {
 	conn net.Conn
 }
 
 func (s *singleListener) Accept() (net.Conn, error) {
 	if s.conn != nil {
-		log.Println("Accept")
+		log.Println("Gender Change: TCP Client -> GRPC Server")
 		c := s.conn
 		s.conn = nil
 		return c, nil
 	}
-	log.Println("Reject")
-	return nil, io.EOF
+	select {}
+	return nil, nil
 }
 
 func (s *singleListener) Close() error {
@@ -99,6 +82,8 @@ func (s *singleListener) Addr() net.Addr {
 	return s.conn.LocalAddr()
 }
 
+// apiService acts as the real grpc request handler
+// ============================= api impl
 type apiService struct {
 }
 
