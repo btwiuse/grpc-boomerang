@@ -18,6 +18,8 @@ import (
 )
 
 var addr = flag.String("addr", "localhost:8080", "tcp service address")
+var cancel func()
+var ctx context.Context
 
 func main() {
 	flag.Parse()
@@ -30,9 +32,32 @@ func main() {
 		log.Fatal("dial:", err)
 	}
 
+	errs := make(chan error, 2)
+	a, b := net.Pipe()
+
+	go func() {
+		defer b.Close()
+		defer c.Close()
+		_, err := io.Copy(b, c)
+		errs <- err
+	}()
+
+	go func() {
+		defer b.Close()
+		defer c.Close()
+		_, err := io.Copy(c, b)
+		errs <- err
+	}()
+
+	ctx, cancel = context.WithCancel(context.Background())
+	go func() {
+		<-errs
+		cancel()
+	}()
+
 	grpcServer := grpc.NewServer()
 	api.RegisterApiServer(grpcServer, &apiService{})
-	grpcServer.Serve(&singleListener{c})
+	grpcServer.Serve(&singleListener{a})
 }
 
 // single listener converts/upgrades the current tcp connection into grpc
@@ -48,7 +73,8 @@ func (s *singleListener) Accept() (net.Conn, error) {
 		s.Conn = nil
 		return c, nil
 	}
-	select {}
+	<-ctx.Done()
+	os.Exit(1)
 	return nil, nil
 }
 
@@ -62,7 +88,7 @@ func (s *singleListener) Addr() net.Addr {
 
 // apiService acts as the real grpc request handler
 // ============================= api impl
-type apiService struct {}
+type apiService struct{}
 
 func (s *apiService) Probe(ctx context.Context, ping *api.Ping) (*api.Pong, error) {
 	log.Println("Ping received. Sending Pong.")

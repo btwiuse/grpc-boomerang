@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"flag"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -32,9 +33,33 @@ func main() {
 		if err != nil {
 			continue
 		}
-		cc := convert(c)
+
+		errs := make(chan error, 2)
+		a, b := net.Pipe()
+
+		go func() {
+			defer c.Close()
+			defer b.Close()
+			_, err := io.Copy(b, c)
+			errs <- err
+		}()
+
+		go func() {
+			defer c.Close()
+			defer b.Close()
+			_, err := io.Copy(c, b)
+			errs <- err
+		}()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		go func() {
+			<-errs
+			cancel()
+		}()
+
+		cc := convert(a)
 		client := api.NewApiClient(cc)
-		go handle(client)
+		go handle(ctx, client)
 	}
 }
 
@@ -54,9 +79,15 @@ func convert(c net.Conn) *grpc.ClientConn {
 	return cc
 }
 
-func handle(client api.ApiClient) {
-	for range time.Tick(time.Second) {
-		client.Probe(context.Background(), &api.Ping{})
+func handle(ctx context.Context, client api.ApiClient) {
+	for {
+		select {
+		case <-time.Tick(time.Second):
+			client.Probe(context.Background(), &api.Ping{})
+		case <-ctx.Done():
+			log.Println("client dead")
+			return
+		}
 	}
 }
 
