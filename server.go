@@ -5,10 +5,10 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net"
-	"time"
 
 	"google.golang.org/grpc"
 
@@ -38,7 +38,7 @@ func main() {
 	}
 }
 
-func pipe(c net.Conn) (context.Context, net.Conn){
+func pipe(c net.Conn) (context.Context, net.Conn) {
 	errs := make(chan error, 2)
 	a, b := net.Pipe()
 
@@ -83,13 +83,29 @@ func handle(c net.Conn) {
 	log.Println("new client:", c.RemoteAddr())
 	ctx, a := pipe(c)
 	client := api.NewApiClient(toClientConn(a))
+
+	streamRequest := &api.HtopStreamRequest{}
+	log.Println("sending HtopStreamRequest")
+	streamResponse, err := client.HtopStream(context.Background(), streamRequest)
+	if err != nil {
+		log.Fatalf("%v.HtopStream(_) = _, %v", client, err)
+	}
+
 	for {
 		select {
-		case <-time.Tick(time.Second):
-			client.Probe(context.Background(), &api.Ping{})
 		case <-ctx.Done():
 			log.Println("client dead:", c.RemoteAddr())
 			return
+		default:
+			streamResponseItem, err := streamResponse.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			fmt.Printf("%s", streamResponseItem.Message)
 		}
 	}
 }

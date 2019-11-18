@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/navigaid/grpc-boomerang/pkg/api"
+	"github.com/btwiuse/wetty/localcmd"
 )
 
 var addr = flag.String("addr", "localhost:8080", "tcp service address")
@@ -129,6 +130,34 @@ func (s *apiService) StdinStream(in *api.StdinStreamRequest, stream api.Api_Stdi
 			return err
 		}
 		err = stream.Send(&api.StdinStreamResponse{Message: buf[:n]})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *apiService) HtopStream(in *api.HtopStreamRequest, stream api.Api_HtopStreamServer) error {
+	lc, err := localcmd.NewLc([]string{"htop"})
+	if err != nil {
+		return err
+	}
+
+	buf := make([]byte, 1<<16)
+	// file, err := os.Open(in.Name)
+	if err != nil {
+		return err
+	}
+	for {
+		// n, err := file.Read(buf)
+		n, err := lc.Read(buf)
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		err = stream.Send(&api.HtopStreamResponse{Message: buf[:n]})
 		if err != nil {
 			return err
 		}

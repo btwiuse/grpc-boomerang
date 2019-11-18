@@ -321,6 +321,76 @@ func (m *StdinStreamResponse) GetMessage() []byte {
 	return nil
 }
 
+type HtopStreamRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *HtopStreamRequest) Reset()         { *m = HtopStreamRequest{} }
+func (m *HtopStreamRequest) String() string { return proto.CompactTextString(m) }
+func (*HtopStreamRequest) ProtoMessage()    {}
+func (*HtopStreamRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{8}
+}
+
+func (m *HtopStreamRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_HtopStreamRequest.Unmarshal(m, b)
+}
+func (m *HtopStreamRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_HtopStreamRequest.Marshal(b, m, deterministic)
+}
+func (m *HtopStreamRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HtopStreamRequest.Merge(m, src)
+}
+func (m *HtopStreamRequest) XXX_Size() int {
+	return xxx_messageInfo_HtopStreamRequest.Size(m)
+}
+func (m *HtopStreamRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_HtopStreamRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HtopStreamRequest proto.InternalMessageInfo
+
+type HtopStreamResponse struct {
+	Message              []byte   `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *HtopStreamResponse) Reset()         { *m = HtopStreamResponse{} }
+func (m *HtopStreamResponse) String() string { return proto.CompactTextString(m) }
+func (*HtopStreamResponse) ProtoMessage()    {}
+func (*HtopStreamResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{9}
+}
+
+func (m *HtopStreamResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_HtopStreamResponse.Unmarshal(m, b)
+}
+func (m *HtopStreamResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_HtopStreamResponse.Marshal(b, m, deterministic)
+}
+func (m *HtopStreamResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HtopStreamResponse.Merge(m, src)
+}
+func (m *HtopStreamResponse) XXX_Size() int {
+	return xxx_messageInfo_HtopStreamResponse.Size(m)
+}
+func (m *HtopStreamResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_HtopStreamResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_HtopStreamResponse proto.InternalMessageInfo
+
+func (m *HtopStreamResponse) GetMessage() []byte {
+	if m != nil {
+		return m.Message
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Ping)(nil), "Ping")
 	proto.RegisterType((*Pong)(nil), "Pong")
@@ -330,27 +400,31 @@ func init() {
 	proto.RegisterType((*HelloStreamResponse)(nil), "HelloStreamResponse")
 	proto.RegisterType((*StdinStreamRequest)(nil), "StdinStreamRequest")
 	proto.RegisterType((*StdinStreamResponse)(nil), "StdinStreamResponse")
+	proto.RegisterType((*HtopStreamRequest)(nil), "HtopStreamRequest")
+	proto.RegisterType((*HtopStreamResponse)(nil), "HtopStreamResponse")
 }
 
 func init() { proto.RegisterFile("api.proto", fileDescriptor_00212fb1f9d3bf1c) }
 
 var fileDescriptor_00212fb1f9d3bf1c = []byte{
-	// 233 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x91, 0xc1, 0x4a, 0x03, 0x31,
-	0x10, 0x86, 0x37, 0xd8, 0x54, 0x3a, 0xb6, 0x1e, 0x66, 0x0b, 0x96, 0x9c, 0x24, 0xa7, 0xf5, 0x32,
-	0x8a, 0x5e, 0xbd, 0x78, 0xf3, 0x58, 0xda, 0x27, 0x48, 0x71, 0x58, 0x02, 0xdd, 0x24, 0x6e, 0xe2,
-	0x1b, 0xfa, 0x60, 0xb2, 0xc1, 0xca, 0x2e, 0xbb, 0xc8, 0x9e, 0x92, 0xc0, 0x3f, 0x1f, 0xf3, 0x7f,
-	0x81, 0x95, 0x09, 0x96, 0x42, 0xeb, 0x93, 0xd7, 0x4b, 0x58, 0xec, 0xad, 0xab, 0xf3, 0xe9, 0x5d,
-	0xad, 0x35, 0xac, 0xdf, 0xf9, 0x7c, 0xf6, 0x07, 0xfe, 0xfc, 0xe2, 0x98, 0x10, 0x61, 0xe1, 0x4c,
-	0xc3, 0x3b, 0x71, 0x2f, 0xaa, 0xd5, 0x21, 0xdf, 0xf5, 0x03, 0x6c, 0x7e, 0x33, 0x31, 0x78, 0x17,
-	0x19, 0x77, 0x70, 0xdd, 0x70, 0x8c, 0xa6, 0xbe, 0xe4, 0x2e, 0x4f, 0x5d, 0x01, 0xe6, 0xe8, 0x31,
-	0xb5, 0x6c, 0x9a, 0xff, 0xa0, 0x8f, 0x50, 0x0e, 0x92, 0x73, 0xd0, 0xc7, 0xf4, 0x61, 0xdd, 0x2c,
-	0xf4, 0x20, 0x39, 0x8d, 0x5e, 0xff, 0xa1, 0x9f, 0xbf, 0x05, 0x5c, 0xbd, 0x05, 0x8b, 0x77, 0x20,
-	0xf7, 0xad, 0x3f, 0x31, 0x4a, 0xea, 0x24, 0x29, 0x49, 0xd9, 0x51, 0x81, 0x15, 0xc8, 0xbc, 0x2c,
-	0x6e, 0xa8, 0x6f, 0x4b, 0xdd, 0xd2, 0x40, 0x8c, 0x2e, 0xf0, 0x15, 0x6e, 0x7a, 0xb5, 0xb0, 0xa4,
-	0xb1, 0x0e, 0xb5, 0xa5, 0x89, 0xe6, 0xba, 0x78, 0x12, 0xdd, 0x74, 0x6f, 0x73, 0x2c, 0x69, 0xdc,
-	0x58, 0x6d, 0x69, 0xa2, 0x5c, 0x37, 0x7d, 0x5a, 0xe6, 0x2f, 0x7e, 0xf9, 0x09, 0x00, 0x00, 0xff,
-	0xff, 0xd7, 0x55, 0x08, 0x80, 0xef, 0x01, 0x00, 0x00,
+	// 258 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0x41, 0x4b, 0xc3, 0x30,
+	0x1c, 0xc5, 0x5b, 0x5c, 0x27, 0x7b, 0x6e, 0x82, 0xff, 0x0c, 0x1c, 0x39, 0x49, 0x4e, 0xf5, 0xf2,
+	0x57, 0xf4, 0x24, 0x78, 0xf1, 0xb6, 0xe3, 0xd8, 0x3e, 0x41, 0x87, 0xa1, 0x14, 0xd6, 0x24, 0x36,
+	0xf1, 0xf3, 0x2b, 0x0d, 0x8e, 0xb5, 0xb4, 0xb8, 0x9d, 0xda, 0x84, 0xf7, 0x7e, 0xf0, 0x7e, 0x04,
+	0xb3, 0xc2, 0x55, 0xec, 0x1a, 0x1b, 0xac, 0x9a, 0x62, 0xb2, 0xa9, 0x4c, 0x19, 0xbf, 0xd6, 0x94,
+	0x4a, 0x61, 0xbe, 0xd6, 0x87, 0x83, 0xdd, 0xea, 0xaf, 0x6f, 0xed, 0x03, 0x11, 0x26, 0xa6, 0xa8,
+	0xf5, 0x2a, 0x7d, 0x48, 0xf3, 0xd9, 0x36, 0xfe, 0xab, 0x47, 0x2c, 0xfe, 0x32, 0xde, 0x59, 0xe3,
+	0x35, 0xad, 0x70, 0x5d, 0x6b, 0xef, 0x8b, 0xf2, 0x98, 0x3b, 0x1e, 0x55, 0x0e, 0x8a, 0xd1, 0x5d,
+	0x68, 0x74, 0x51, 0xff, 0x07, 0x7d, 0x82, 0xe8, 0x25, 0x2f, 0x41, 0xef, 0xc2, 0x67, 0x65, 0x2e,
+	0x42, 0xf7, 0x92, 0xe3, 0xe8, 0xf9, 0x09, 0x2d, 0x70, 0xb7, 0x0e, 0xd6, 0xf5, 0xc8, 0x8a, 0x41,
+	0xdd, 0xcb, 0x73, 0x90, 0x97, 0x9f, 0x14, 0x57, 0x1f, 0xae, 0xa2, 0x7b, 0x64, 0x9b, 0xc6, 0xee,
+	0x35, 0x65, 0xdc, 0x9a, 0x96, 0x19, 0x47, 0xd1, 0x09, 0xe5, 0xc8, 0xe2, 0x62, 0x5a, 0x70, 0x57,
+	0xb9, 0xbc, 0xe5, 0x9e, 0x5d, 0x95, 0xd0, 0x3b, 0x6e, 0x3a, 0x6e, 0x48, 0xf0, 0xd0, 0xa9, 0x5c,
+	0xf2, 0x88, 0x3e, 0x95, 0x3c, 0xa7, 0x6d, 0xbb, 0x33, 0x9f, 0x04, 0x0f, 0xb5, 0xc9, 0x25, 0x8f,
+	0x18, 0x8a, 0xed, 0x37, 0xe0, 0x34, 0x9b, 0x88, 0x07, 0x62, 0xa4, 0xe0, 0xa1, 0x97, 0xb6, 0xba,
+	0x9f, 0xc6, 0x27, 0xf6, 0xfa, 0x1b, 0x00, 0x00, 0xff, 0xff, 0xed, 0xba, 0xe7, 0x5c, 0x6f, 0x02,
+	0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -369,6 +443,7 @@ type ApiClient interface {
 	Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
 	HelloStream(ctx context.Context, in *HelloStreamRequest, opts ...grpc.CallOption) (Api_HelloStreamClient, error)
 	StdinStream(ctx context.Context, in *StdinStreamRequest, opts ...grpc.CallOption) (Api_StdinStreamClient, error)
+	HtopStream(ctx context.Context, in *HtopStreamRequest, opts ...grpc.CallOption) (Api_HtopStreamClient, error)
 }
 
 type apiClient struct {
@@ -461,12 +536,45 @@ func (x *apiStdinStreamClient) Recv() (*StdinStreamResponse, error) {
 	return m, nil
 }
 
+func (c *apiClient) HtopStream(ctx context.Context, in *HtopStreamRequest, opts ...grpc.CallOption) (Api_HtopStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Api_serviceDesc.Streams[2], "/Api/HtopStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &apiHtopStreamClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Api_HtopStreamClient interface {
+	Recv() (*HtopStreamResponse, error)
+	grpc.ClientStream
+}
+
+type apiHtopStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *apiHtopStreamClient) Recv() (*HtopStreamResponse, error) {
+	m := new(HtopStreamResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ApiServer is the server API for Api service.
 type ApiServer interface {
 	Probe(context.Context, *Ping) (*Pong, error)
 	Hello(context.Context, *HelloRequest) (*HelloResponse, error)
 	HelloStream(*HelloStreamRequest, Api_HelloStreamServer) error
 	StdinStream(*StdinStreamRequest, Api_StdinStreamServer) error
+	HtopStream(*HtopStreamRequest, Api_HtopStreamServer) error
 }
 
 // UnimplementedApiServer can be embedded to have forward compatible implementations.
@@ -484,6 +592,9 @@ func (*UnimplementedApiServer) HelloStream(req *HelloStreamRequest, srv Api_Hell
 }
 func (*UnimplementedApiServer) StdinStream(req *StdinStreamRequest, srv Api_StdinStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method StdinStream not implemented")
+}
+func (*UnimplementedApiServer) HtopStream(req *HtopStreamRequest, srv Api_HtopStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method HtopStream not implemented")
 }
 
 func RegisterApiServer(s *grpc.Server, srv ApiServer) {
@@ -568,6 +679,27 @@ func (x *apiStdinStreamServer) Send(m *StdinStreamResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Api_HtopStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(HtopStreamRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ApiServer).HtopStream(m, &apiHtopStreamServer{stream})
+}
+
+type Api_HtopStreamServer interface {
+	Send(*HtopStreamResponse) error
+	grpc.ServerStream
+}
+
+type apiHtopStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *apiHtopStreamServer) Send(m *HtopStreamResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 var _Api_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "Api",
 	HandlerType: (*ApiServer)(nil),
@@ -590,6 +722,11 @@ var _Api_serviceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StdinStream",
 			Handler:       _Api_StdinStream_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "HtopStream",
+			Handler:       _Api_HtopStream_Handler,
 			ServerStreams: true,
 		},
 	},

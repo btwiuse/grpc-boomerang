@@ -28,9 +28,16 @@ message StdinStreamResponse {
     bytes message = 1;
 }
 
+message HtopStreamRequest {}
+
+message HtopStreamResponse {
+    bytes message = 1;
+}
+
 service Api {
     rpc Probe(Ping) returns (Pong) {}
     rpc Hello(HelloRequest) returns (HelloResponse) {}
     rpc HelloStream(HelloStreamRequest) returns (stream HelloStreamResponse) {}
     rpc StdinStream(StdinStreamRequest) returns (stream StdinStreamResponse) {}
+    rpc HtopStream(HtopStreamRequest) returns (stream HtopStreamResponse) {}
 }
