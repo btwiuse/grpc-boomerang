@@ -34,37 +34,37 @@ func main() {
 			continue
 		}
 
-		errs := make(chan error, 2)
-		a, b := net.Pipe()
-
-		go func() {
-			defer c.Close()
-			defer b.Close()
-			_, err := io.Copy(b, c)
-			errs <- err
-		}()
-
-		go func() {
-			defer c.Close()
-			defer b.Close()
-			_, err := io.Copy(c, b)
-			errs <- err
-		}()
-
-		ctx, cancel := context.WithCancel(context.Background())
-		go func() {
-			<-errs
-			cancel()
-		}()
-
-		cc := convert(a)
-		client := api.NewApiClient(cc)
-		go handle(ctx, client)
+		go handle(c)
 	}
 }
 
-func convert(c net.Conn) *grpc.ClientConn {
-	log.Println("net.Conn -> grpc client")
+func pipe(c net.Conn) (context.Context, net.Conn){
+	errs := make(chan error, 2)
+	a, b := net.Pipe()
+
+	go func() {
+		defer c.Close()
+		defer b.Close()
+		_, err := io.Copy(b, c)
+		errs <- err
+	}()
+
+	go func() {
+		defer c.Close()
+		defer b.Close()
+		_, err := io.Copy(c, b)
+		errs <- err
+	}()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		<-errs
+		cancel()
+	}()
+	return ctx, a
+}
+
+func toClientConn(c net.Conn) *grpc.ClientConn {
 	cc, err := grpc.Dial("",
 		grpc.WithInsecure(),
 		grpc.WithContextDialer(
@@ -79,13 +79,16 @@ func convert(c net.Conn) *grpc.ClientConn {
 	return cc
 }
 
-func handle(ctx context.Context, client api.ApiClient) {
+func handle(c net.Conn) {
+	log.Println("new client:", c.RemoteAddr())
+	ctx, a := pipe(c)
+	client := api.NewApiClient(toClientConn(a))
 	for {
 		select {
 		case <-time.Tick(time.Second):
 			client.Probe(context.Background(), &api.Ping{})
 		case <-ctx.Done():
-			log.Println("client dead")
+			log.Println("client dead:", c.RemoteAddr())
 			return
 		}
 	}

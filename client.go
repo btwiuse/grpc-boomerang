@@ -25,13 +25,19 @@ func main() {
 	flag.Parse()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	log.Printf("connecting to %s", *addr)
-
 	c, err := net.Dial("tcp", *addr)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
 
+	log.Printf("connecting to %s from %s\n", *addr, c.LocalAddr())
+
+	grpcServer := grpc.NewServer()
+	api.RegisterApiServer(grpcServer, &apiService{})
+	grpcServer.Serve(&singleListener{pipe(c)})
+}
+
+func pipe(c net.Conn) (net.Conn){
 	errs := make(chan error, 2)
 	a, b := net.Pipe()
 
@@ -55,9 +61,7 @@ func main() {
 		cancel()
 	}()
 
-	grpcServer := grpc.NewServer()
-	api.RegisterApiServer(grpcServer, &apiService{})
-	grpcServer.Serve(&singleListener{a})
+	return a
 }
 
 // single listener converts/upgrades the current tcp connection into grpc
