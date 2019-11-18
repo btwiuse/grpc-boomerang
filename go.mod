@@ -1,4 +1,4 @@
-module github.com/navigaid/grpc-boomerang
+module github.com/btwiuse/grpc-boomerang
 
 go 1.12
 

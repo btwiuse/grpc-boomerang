@@ -14,7 +14,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/navigaid/grpc-boomerang/pkg/api"
+	"github.com/btwiuse/grpc-boomerang/pkg/api"
 	"github.com/btwiuse/wetty/localcmd"
 )
 
