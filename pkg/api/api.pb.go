@@ -25,6 +25,68 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+type Ping struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Ping) Reset()         { *m = Ping{} }
+func (m *Ping) String() string { return proto.CompactTextString(m) }
+func (*Ping) ProtoMessage()    {}
+func (*Ping) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{0}
+}
+
+func (m *Ping) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Ping.Unmarshal(m, b)
+}
+func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
+}
+func (m *Ping) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ping.Merge(m, src)
+}
+func (m *Ping) XXX_Size() int {
+	return xxx_messageInfo_Ping.Size(m)
+}
+func (m *Ping) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ping.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Ping proto.InternalMessageInfo
+
+type Pong struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Pong) Reset()         { *m = Pong{} }
+func (m *Pong) String() string { return proto.CompactTextString(m) }
+func (*Pong) ProtoMessage()    {}
+func (*Pong) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{1}
+}
+
+func (m *Pong) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Pong.Unmarshal(m, b)
+}
+func (m *Pong) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Pong.Marshal(b, m, deterministic)
+}
+func (m *Pong) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Pong.Merge(m, src)
+}
+func (m *Pong) XXX_Size() int {
+	return xxx_messageInfo_Pong.Size(m)
+}
+func (m *Pong) XXX_DiscardUnknown() {
+	xxx_messageInfo_Pong.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Pong proto.InternalMessageInfo
+
 type HelloRequest struct {
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -36,7 +98,7 @@ func (m *HelloRequest) Reset()         { *m = HelloRequest{} }
 func (m *HelloRequest) String() string { return proto.CompactTextString(m) }
 func (*HelloRequest) ProtoMessage()    {}
 func (*HelloRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_00212fb1f9d3bf1c, []int{0}
+	return fileDescriptor_00212fb1f9d3bf1c, []int{2}
 }
 
 func (m *HelloRequest) XXX_Unmarshal(b []byte) error {
@@ -75,7 +137,7 @@ func (m *HelloResponse) Reset()         { *m = HelloResponse{} }
 func (m *HelloResponse) String() string { return proto.CompactTextString(m) }
 func (*HelloResponse) ProtoMessage()    {}
 func (*HelloResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_00212fb1f9d3bf1c, []int{1}
+	return fileDescriptor_00212fb1f9d3bf1c, []int{3}
 }
 
 func (m *HelloResponse) XXX_Unmarshal(b []byte) error {
@@ -114,7 +176,7 @@ func (m *HelloStreamRequest) Reset()         { *m = HelloStreamRequest{} }
 func (m *HelloStreamRequest) String() string { return proto.CompactTextString(m) }
 func (*HelloStreamRequest) ProtoMessage()    {}
 func (*HelloStreamRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_00212fb1f9d3bf1c, []int{2}
+	return fileDescriptor_00212fb1f9d3bf1c, []int{4}
 }
 
 func (m *HelloStreamRequest) XXX_Unmarshal(b []byte) error {
@@ -153,7 +215,7 @@ func (m *HelloStreamResponse) Reset()         { *m = HelloStreamResponse{} }
 func (m *HelloStreamResponse) String() string { return proto.CompactTextString(m) }
 func (*HelloStreamResponse) ProtoMessage()    {}
 func (*HelloStreamResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_00212fb1f9d3bf1c, []int{3}
+	return fileDescriptor_00212fb1f9d3bf1c, []int{5}
 }
 
 func (m *HelloStreamResponse) XXX_Unmarshal(b []byte) error {
@@ -192,7 +254,7 @@ func (m *StdinStreamRequest) Reset()         { *m = StdinStreamRequest{} }
 func (m *StdinStreamRequest) String() string { return proto.CompactTextString(m) }
 func (*StdinStreamRequest) ProtoMessage()    {}
 func (*StdinStreamRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_00212fb1f9d3bf1c, []int{4}
+	return fileDescriptor_00212fb1f9d3bf1c, []int{6}
 }
 
 func (m *StdinStreamRequest) XXX_Unmarshal(b []byte) error {
@@ -231,7 +293,7 @@ func (m *StdinStreamResponse) Reset()         { *m = StdinStreamResponse{} }
 func (m *StdinStreamResponse) String() string { return proto.CompactTextString(m) }
 func (*StdinStreamResponse) ProtoMessage()    {}
 func (*StdinStreamResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_00212fb1f9d3bf1c, []int{5}
+	return fileDescriptor_00212fb1f9d3bf1c, []int{7}
 }
 
 func (m *StdinStreamResponse) XXX_Unmarshal(b []byte) error {
@@ -260,6 +322,8 @@ func (m *StdinStreamResponse) GetMessage() []byte {
 }
 
 func init() {
+	proto.RegisterType((*Ping)(nil), "Ping")
+	proto.RegisterType((*Pong)(nil), "Pong")
 	proto.RegisterType((*HelloRequest)(nil), "HelloRequest")
 	proto.RegisterType((*HelloResponse)(nil), "HelloResponse")
 	proto.RegisterType((*HelloStreamRequest)(nil), "HelloStreamRequest")
@@ -271,20 +335,22 @@ func init() {
 func init() { proto.RegisterFile("api.proto", fileDescriptor_00212fb1f9d3bf1c) }
 
 var fileDescriptor_00212fb1f9d3bf1c = []byte{
-	// 202 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4c, 0x2c, 0xc8, 0xd4,
-	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x57, 0x52, 0xe2, 0xe2, 0xf1, 0x48, 0xcd, 0xc9, 0xc9, 0x0f, 0x4a,
-	0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x12, 0xe2, 0x62, 0xc9, 0x4b, 0xcc, 0x4d, 0x95, 0x60, 0x54,
-	0x60, 0xd4, 0xe0, 0x0c, 0x02, 0xb3, 0x95, 0x34, 0xb9, 0x78, 0xa1, 0x6a, 0x8a, 0x0b, 0xf2, 0xf3,
-	0x8a, 0x53, 0x85, 0x24, 0xb8, 0xd8, 0x73, 0x53, 0x8b, 0x8b, 0x13, 0xd3, 0x61, 0xea, 0x60, 0x5c,
-	0x25, 0x0d, 0x2e, 0x21, 0xb0, 0xd2, 0xe0, 0x92, 0xa2, 0xd4, 0xc4, 0x5c, 0x7c, 0x86, 0xea, 0x73,
-	0x09, 0xa3, 0xa8, 0x24, 0xc6, 0xe8, 0xe0, 0x92, 0x94, 0xcc, 0x3c, 0xa2, 0x8c, 0x46, 0x51, 0x89,
-	0xdd, 0x68, 0x1e, 0xb8, 0xd1, 0x46, 0xab, 0x19, 0xb9, 0x98, 0x1d, 0x0b, 0x32, 0x85, 0x34, 0xb8,
-	0x58, 0xc1, 0x6e, 0x12, 0xe2, 0xd5, 0x43, 0x0e, 0x14, 0x29, 0x3e, 0x3d, 0x14, 0xff, 0x2b, 0x31,
-	0x08, 0xd9, 0x70, 0x71, 0x23, 0xb9, 0x5e, 0x48, 0x58, 0x0f, 0xd3, 0xd7, 0x52, 0x22, 0x7a, 0x58,
-	0x3c, 0xa8, 0xc4, 0x60, 0xc0, 0x08, 0xd2, 0x8d, 0xe4, 0x40, 0x21, 0x61, 0x3d, 0x4c, 0x8f, 0x49,
-	0x89, 0xe8, 0x61, 0xf1, 0x03, 0x48, 0x77, 0x12, 0x1b, 0x38, 0xe6, 0x8c, 0x01, 0x01, 0x00, 0x00,
-	0xff, 0xff, 0x61, 0x81, 0x44, 0x68, 0xc6, 0x01, 0x00, 0x00,
+	// 233 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x91, 0xc1, 0x4a, 0x03, 0x31,
+	0x10, 0x86, 0x37, 0xd8, 0x54, 0x3a, 0xb6, 0x1e, 0x66, 0x0b, 0x96, 0x9c, 0x24, 0xa7, 0xf5, 0x32,
+	0x8a, 0x5e, 0xbd, 0x78, 0xf3, 0x58, 0xda, 0x27, 0x48, 0x71, 0x58, 0x02, 0xdd, 0x24, 0x6e, 0xe2,
+	0x1b, 0xfa, 0x60, 0xb2, 0xc1, 0xca, 0x2e, 0xbb, 0xc8, 0x9e, 0x92, 0xc0, 0x3f, 0x1f, 0xf3, 0x7f,
+	0x81, 0x95, 0x09, 0x96, 0x42, 0xeb, 0x93, 0xd7, 0x4b, 0x58, 0xec, 0xad, 0xab, 0xf3, 0xe9, 0x5d,
+	0xad, 0x35, 0xac, 0xdf, 0xf9, 0x7c, 0xf6, 0x07, 0xfe, 0xfc, 0xe2, 0x98, 0x10, 0x61, 0xe1, 0x4c,
+	0xc3, 0x3b, 0x71, 0x2f, 0xaa, 0xd5, 0x21, 0xdf, 0xf5, 0x03, 0x6c, 0x7e, 0x33, 0x31, 0x78, 0x17,
+	0x19, 0x77, 0x70, 0xdd, 0x70, 0x8c, 0xa6, 0xbe, 0xe4, 0x2e, 0x4f, 0x5d, 0x01, 0xe6, 0xe8, 0x31,
+	0xb5, 0x6c, 0x9a, 0xff, 0xa0, 0x8f, 0x50, 0x0e, 0x92, 0x73, 0xd0, 0xc7, 0xf4, 0x61, 0xdd, 0x2c,
+	0xf4, 0x20, 0x39, 0x8d, 0x5e, 0xff, 0xa1, 0x9f, 0xbf, 0x05, 0x5c, 0xbd, 0x05, 0x8b, 0x77, 0x20,
+	0xf7, 0xad, 0x3f, 0x31, 0x4a, 0xea, 0x24, 0x29, 0x49, 0xd9, 0x51, 0x81, 0x15, 0xc8, 0xbc, 0x2c,
+	0x6e, 0xa8, 0x6f, 0x4b, 0xdd, 0xd2, 0x40, 0x8c, 0x2e, 0xf0, 0x15, 0x6e, 0x7a, 0xb5, 0xb0, 0xa4,
+	0xb1, 0x0e, 0xb5, 0xa5, 0x89, 0xe6, 0xba, 0x78, 0x12, 0xdd, 0x74, 0x6f, 0x73, 0x2c, 0x69, 0xdc,
+	0x58, 0x6d, 0x69, 0xa2, 0x5c, 0x37, 0x7d, 0x5a, 0xe6, 0x2f, 0x7e, 0xf9, 0x09, 0x00, 0x00, 0xff,
+	0xff, 0xd7, 0x55, 0x08, 0x80, 0xef, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -299,6 +365,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ApiClient interface {
+	Probe(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Pong, error)
 	Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
 	HelloStream(ctx context.Context, in *HelloStreamRequest, opts ...grpc.CallOption) (Api_HelloStreamClient, error)
 	StdinStream(ctx context.Context, in *StdinStreamRequest, opts ...grpc.CallOption) (Api_StdinStreamClient, error)
@@ -310,6 +377,15 @@ type apiClient struct {
 
 func NewApiClient(cc *grpc.ClientConn) ApiClient {
 	return &apiClient{cc}
+}
+
+func (c *apiClient) Probe(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Pong, error) {
+	out := new(Pong)
+	err := c.cc.Invoke(ctx, "/Api/Probe", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *apiClient) Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
@@ -387,6 +463,7 @@ func (x *apiStdinStreamClient) Recv() (*StdinStreamResponse, error) {
 
 // ApiServer is the server API for Api service.
 type ApiServer interface {
+	Probe(context.Context, *Ping) (*Pong, error)
 	Hello(context.Context, *HelloRequest) (*HelloResponse, error)
 	HelloStream(*HelloStreamRequest, Api_HelloStreamServer) error
 	StdinStream(*StdinStreamRequest, Api_StdinStreamServer) error
@@ -396,6 +473,9 @@ type ApiServer interface {
 type UnimplementedApiServer struct {
 }
 
+func (*UnimplementedApiServer) Probe(ctx context.Context, req *Ping) (*Pong, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Probe not implemented")
+}
 func (*UnimplementedApiServer) Hello(ctx context.Context, req *HelloRequest) (*HelloResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Hello not implemented")
 }
@@ -408,6 +488,24 @@ func (*UnimplementedApiServer) StdinStream(req *StdinStreamRequest, srv Api_Stdi
 
 func RegisterApiServer(s *grpc.Server, srv ApiServer) {
 	s.RegisterService(&_Api_serviceDesc, srv)
+}
+
+func _Api_Probe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Ping)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).Probe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Api/Probe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).Probe(ctx, req.(*Ping))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Api_Hello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -474,6 +572,10 @@ var _Api_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "Api",
 	HandlerType: (*ApiServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Probe",
+			Handler:    _Api_Probe_Handler,
+		},
 		{
 			MethodName: "Hello",
 			Handler:    _Api_Hello_Handler,

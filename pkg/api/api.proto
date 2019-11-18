@@ -1,5 +1,9 @@
 syntax = "proto3";
 
+message Ping {}
+
+message Pong {}
+
 message HelloRequest {
     string name = 1;
 }
@@ -25,6 +29,7 @@ message StdinStreamResponse {
 }
 
 service Api {
+    rpc Probe(Ping) returns (Pong) {}
     rpc Hello(HelloRequest) returns (HelloResponse) {}
     rpc HelloStream(HelloStreamRequest) returns (stream HelloStreamResponse) {}
     rpc StdinStream(StdinStreamRequest) returns (stream StdinStreamResponse) {}

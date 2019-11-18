@@ -19,24 +19,6 @@ import (
 
 var addr = flag.String("addr", "localhost:8080", "tcp service address")
 
-/*
-[client]
-
-tcpSide <= io.Pipe =>  grpcSide = (grpc.Serve)
-
-(raw data)
-
-^ goroutine 1
-v goroutine 2
-
-(binary message)
-
-|| websocket
-
-[server]
-
-*/
-
 func main() {
 	flag.Parse()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
@@ -48,26 +30,22 @@ func main() {
 		log.Fatal("dial:", err)
 	}
 
-	grpcHandler := &apiService{}
-
-	// client side grpc server over net.Conn over websocket.Conn
-	l := &singleListener{c}
 	grpcServer := grpc.NewServer()
-	api.RegisterApiServer(grpcServer, grpcHandler)
-	grpcServer.Serve(l)
+	api.RegisterApiServer(grpcServer, &apiService{})
+	grpcServer.Serve(&singleListener{c})
 }
 
 // single listener converts/upgrades the current tcp connection into grpc
 // ============================= gender changer impl
 type singleListener struct {
-	conn net.Conn
+	net.Conn
 }
 
 func (s *singleListener) Accept() (net.Conn, error) {
-	if s.conn != nil {
+	if s.Conn != nil {
 		log.Println("Gender Change: TCP Client -> GRPC Server")
-		c := s.conn
-		s.conn = nil
+		c := s.Conn
+		s.Conn = nil
 		return c, nil
 	}
 	select {}
@@ -79,12 +57,16 @@ func (s *singleListener) Close() error {
 }
 
 func (s *singleListener) Addr() net.Addr {
-	return s.conn.LocalAddr()
+	return s.Conn.LocalAddr()
 }
 
 // apiService acts as the real grpc request handler
 // ============================= api impl
-type apiService struct {
+type apiService struct {}
+
+func (s *apiService) Probe(ctx context.Context, ping *api.Ping) (*api.Pong, error) {
+	log.Println("Ping received. Sending Pong.")
+	return &api.Pong{}, nil
 }
 
 func (s *apiService) Hello(ctx context.Context, in *api.HelloRequest) (*api.HelloResponse, error) {
