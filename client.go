@@ -5,18 +5,16 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
 	"github.com/btwiuse/grpc-boomerang/pkg/api"
-	"github.com/btwiuse/wetty/localcmd"
+	"github.com/btwiuse/grpc-boomerang/pkg/api/impl"
 )
 
 var addr = flag.String("addr", "localhost:8443", "tcp service address")
@@ -43,11 +41,11 @@ func main() {
 		grpc.Creds(creds),
 	}
 	grpcServer := grpc.NewServer(options...)
-	api.RegisterApiServer(grpcServer, &apiService{})
+	api.RegisterApiServer(grpcServer, &impl.ApiService{})
 	grpcServer.Serve(&singleListener{pipe(c)})
 }
 
-func pipe(c net.Conn) (net.Conn){
+func pipe(c net.Conn) net.Conn {
 	errs := make(chan error, 2)
 	a, b := net.Pipe()
 
@@ -98,78 +96,4 @@ func (s *singleListener) Close() error {
 
 func (s *singleListener) Addr() net.Addr {
 	return s.Conn.LocalAddr()
-}
-
-// apiService acts as the real grpc request handler
-// ============================= api impl
-type apiService struct{}
-
-func (s *apiService) Probe(ctx context.Context, ping *api.Ping) (*api.Pong, error) {
-	log.Println("Ping received. Sending Pong.")
-	return &api.Pong{}, nil
-}
-
-func (s *apiService) Hello(ctx context.Context, in *api.HelloRequest) (*api.HelloResponse, error) {
-	return &api.HelloResponse{Message: "Hello " + in.GetName()}, nil
-}
-
-func (s *apiService) HelloStream(in *api.HelloStreamRequest, stream api.Api_HelloStreamServer) error {
-	for i := 0; i < 10; i++ {
-		err := stream.Send(&api.HelloStreamResponse{Message: fmt.Sprintf("Hello %d: %s", i, in.GetName())})
-		time.Sleep(0 * time.Second)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (s *apiService) StdinStream(in *api.StdinStreamRequest, stream api.Api_StdinStreamServer) error {
-	buf := make([]byte, 1<<16)
-	file, err := os.Open(in.Name)
-	if err != nil {
-		return err
-	}
-	for {
-		n, err := file.Read(buf)
-		if err == io.EOF {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		err = stream.Send(&api.StdinStreamResponse{Message: buf[:n]})
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (s *apiService) HtopStream(in *api.HtopStreamRequest, stream api.Api_HtopStreamServer) error {
-	lc, err := localcmd.NewLc([]string{"htop"})
-	if err != nil {
-		return err
-	}
-
-	buf := make([]byte, 1<<16)
-	// file, err := os.Open(in.Name)
-	if err != nil {
-		return err
-	}
-	for {
-		// n, err := file.Read(buf)
-		n, err := lc.Read(buf)
-		if err == io.EOF {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-		err = stream.Send(&api.HtopStreamResponse{Message: buf[:n]})
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
