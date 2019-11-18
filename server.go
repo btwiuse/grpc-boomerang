@@ -6,12 +6,11 @@ import (
 	"bufio"
 	"context"
 	"flag"
+	"io"
 	"log"
 	"net"
-	"net/http"
 	"os"
 
-	"github.com/gorilla/websocket"
 	"google.golang.org/grpc"
 
 	"github.com/navigaid/grpc-boomerang/pkg/api"
@@ -19,56 +18,19 @@ import (
 
 var (
 	addr                    = flag.String("addr", "localhost:8080", "http service address")
-	upgrader                = websocket.Upgrader{} // use default options
-	mux                     = http.NewServeMux()
 	grpcSide, websocketSide = net.Pipe()
 )
 
-func echo(grpcSide, websocketSide net.Conn) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		c, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			log.Print("upgrade:", err)
-			return
-		}
-		defer c.Close()
-
+func echo(grpcSide, websocketSide net.Conn) func(net.Conn) {
+	return func(c net.Conn) {
 		go func() {
-			for {
-				mt, message, err := c.ReadMessage()
-				if err != nil {
-					log.Println("c.ReadMessage:", err)
-					break
-				}
-
-				if mt != websocket.BinaryMessage {
-					log.Println("mt != websocket.BinaryMessage")
-					break
-				}
-
-				_, err = websocketSide.Write(message)
-				if err != nil {
-					log.Println("pipe.Write:", err)
-					break
-				}
-			}
+			defer c.Close()
+			log.Println(io.Copy(websocketSide, c))
 		}()
 
 		go func() {
-			data := make([]byte, 10*1024*1024)
-			for {
-				n, err := websocketSide.Read(data)
-				if err != nil {
-					log.Println("pipe.Read:", err)
-					break
-				}
-
-				err = c.WriteMessage(websocket.BinaryMessage, data[:n])
-				if err != nil {
-					log.Println("c.WriteMessage:", err)
-					break
-				}
-			}
+			defer c.Close()
+			log.Println(io.Copy(c, websocketSide))
 		}()
 
 		select {}
@@ -80,14 +42,21 @@ func main() {
 	flag.Parse()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	http.HandleFunc("/echo", echo(grpcSide, websocketSide))
 	go func() {
 		log.Println("listening on", *addr)
-		log.Fatalln(http.ListenAndServe(*addr, nil))
+		ln, err := net.Listen("tcp", *addr)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		echo(grpcSide, websocketSide)(conn)
 	}()
 
 	log.Println("grpc.Dial")
-	c, err := grpc.Dial("", 
+	c, err := grpc.Dial("",
 		grpc.WithInsecure(),
 		grpc.WithContextDialer(
 			func(ctx context.Context, s string) (net.Conn, error) {

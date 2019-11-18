@@ -9,18 +9,16 @@ import (
 	"io"
 	"log"
 	"net"
-	"net/url"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"google.golang.org/grpc"
 
 	"github.com/navigaid/grpc-boomerang/pkg/api"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", "localhost:8080", "tcp service address")
 
 /*
 [client]
@@ -49,60 +47,22 @@ func main() {
 
 	grpcSide, websocketSide := net.Pipe()
 
-	u := url.URL{Scheme: "ws", Host: *addr, Path: "/echo"}
-	log.Printf("connecting to %s", u.String())
+	log.Printf("connecting to %s", *addr)
 
-	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	c, err := net.Dial("tcp", *addr)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
 	defer c.Close()
 
-	done := make(chan struct{})
-	data := make([]byte, 10*1024*1024)
-
 	go func() {
 		defer c.Close()
-		defer close(done)
-		for {
-			mt, message, err := c.ReadMessage()
-			if err != nil {
-				log.Println("c.ReadMessage:", err)
-				break
-			}
-
-			if mt != websocket.BinaryMessage {
-				log.Println("mt != websocket.BinaryMessage")
-				break
-			}
-
-			n, err := websocketSide.Write(message)
-			if err != nil {
-				log.Println("pipe.Write:", err)
-				break
-			}
-
-			if len(message) != n {
-				log.Printf("whooot! len(data) != n => %d != %d!\n", len(message), n)
-				break
-			}
-		}
+		io.Copy(websocketSide, c)
 	}()
 
 	go func() {
-		for {
-			n, err := websocketSide.Read(data)
-			if err != nil {
-				log.Println("pipe.Read:", err)
-				break
-			}
-
-			err = c.WriteMessage(websocket.BinaryMessage, data[:n])
-			if err != nil {
-				log.Println("c.WriteMessage:", err)
-				break
-			}
-		}
+		defer c.Close()
+		io.Copy(c, websocketSide)
 	}()
 
 	// client side grpc server over net.Conn over websocket.Conn
