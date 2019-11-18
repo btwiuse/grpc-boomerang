@@ -6,12 +6,10 @@ import (
 	"bufio"
 	"context"
 	"flag"
-	"io"
 	"log"
 	"net"
 	"net/http"
 	"os"
-	"sync"
 
 	"github.com/gorilla/websocket"
 	"google.golang.org/grpc"
@@ -35,12 +33,7 @@ func echo(grpcSide, websocketSide net.Conn) http.HandlerFunc {
 		}
 		defer c.Close()
 
-		data := make([]byte, 10*1024*1024)
-		var wg sync.WaitGroup
-
-		wg.Add(1)
 		go func() {
-			defer wg.Done()
 			for {
 				mt, message, err := c.ReadMessage()
 				if err != nil {
@@ -53,22 +46,16 @@ func echo(grpcSide, websocketSide net.Conn) http.HandlerFunc {
 					break
 				}
 
-				n, err := websocketSide.Write(message)
+				_, err = websocketSide.Write(message)
 				if err != nil {
 					log.Println("pipe.Write:", err)
-					break
-				}
-
-				if len(message) != n {
-					log.Printf("whooot! len(data) != n => %d != %d!\n", len(message), n)
 					break
 				}
 			}
 		}()
 
-		wg.Add(1)
 		go func() {
-			defer wg.Done()
+			data := make([]byte, 10*1024*1024)
 			for {
 				n, err := websocketSide.Read(data)
 				if err != nil {
@@ -84,7 +71,7 @@ func echo(grpcSide, websocketSide net.Conn) http.HandlerFunc {
 			}
 		}()
 
-		wg.Wait()
+		select {}
 	}
 
 }
@@ -99,12 +86,14 @@ func main() {
 		log.Fatalln(http.ListenAndServe(*addr, nil))
 	}()
 
-	c, err := grpc.Dial("", []grpc.DialOption{
+	log.Println("grpc.Dial")
+	c, err := grpc.Dial("", 
 		grpc.WithInsecure(),
-		grpc.WithContextDialer(func(ctx context.Context, s string) (net.Conn, error) {
-			return grpcSide, nil
-		}),
-	}...,
+		grpc.WithContextDialer(
+			func(ctx context.Context, s string) (net.Conn, error) {
+				return grpcSide, nil
+			},
+		),
 	)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -118,33 +107,51 @@ func main() {
 			log.Fatal(err.Error())
 		}
 
-		go func() {
-			streamRequest := &api.HelloStreamRequest{Name: string(l)}
-			streamResponse, err := client.HelloStream(context.Background(), streamRequest)
+		{
+			streamRequest := &api.StdinStreamRequest{Name: string(l)}
+			log.Println("sending StdinStreamRequest")
+			streamResponse, err := client.StdinStream(context.Background(), streamRequest)
 			if err != nil {
-				log.Fatalf("%v.HelloStream(_) = _, %v", client, err)
+				log.Fatalf("%v.StdinStream(_) = _, %v", client, err)
 			}
 
-			for {
+			for i := 0; ; i++ {
 				streamResponseItem, err := streamResponse.Recv()
-				if err == io.EOF {
+				if err != nil {
+					log.Printf("streamResponse.Recv() %v\n", err)
 					break
 				}
-				if err != nil {
-					log.Fatalf("streamResponse.Recv() %v", err)
-				}
-				log.Println(streamResponseItem)
+				log.Println(i, "StdinStreamResponse", len(streamResponseItem.Message))
 			}
-		}()
-
-		println("hello")
-		request := &api.HelloRequest{Name: string(l)}
-		response, err := client.Hello(context.Background(), request)
-		if err != nil {
-			log.Println(err.Error())
-			continue
 		}
+		{
+			//streamRequest := &api.HelloStreamRequest{Name: string(l)}
+			//log.Println("sending HelloStreamRequest")
+			//streamResponse, err := client.HelloStream(context.Background(), streamRequest)
+			//if err != nil {
+			//	log.Fatalf("%v.HelloStream(_) = _, %v", client, err)
+			//}
 
-		println("response: " + response.GetMessage())
+			//for {
+			//	streamResponseItem, err := streamResponse.Recv()
+			//	if err == io.EOF {
+			//		break
+			//	}
+			//	if err != nil {
+			//		log.Fatalf("streamResponse.Recv() %v", err)
+			//	}
+			//	log.Println("HelloStreamResponse", streamResponseItem)
+			//}
+		}
+		{
+			//request := &api.HelloRequest{Name: string(l)}
+			//log.Println("sending HelloRequest")
+			//response, err := client.Hello(context.Background(), request)
+			//if err != nil {
+			//	log.Println(err.Error())
+			//	continue
+			//}
+			//log.Println("HelloResponse" + response.GetMessage())
+		}
 	}
 }

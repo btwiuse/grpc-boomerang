@@ -181,28 +181,110 @@ func (m *HelloStreamResponse) GetMessage() string {
 	return ""
 }
 
+type StdinStreamRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StdinStreamRequest) Reset()         { *m = StdinStreamRequest{} }
+func (m *StdinStreamRequest) String() string { return proto.CompactTextString(m) }
+func (*StdinStreamRequest) ProtoMessage()    {}
+func (*StdinStreamRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{4}
+}
+
+func (m *StdinStreamRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StdinStreamRequest.Unmarshal(m, b)
+}
+func (m *StdinStreamRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StdinStreamRequest.Marshal(b, m, deterministic)
+}
+func (m *StdinStreamRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StdinStreamRequest.Merge(m, src)
+}
+func (m *StdinStreamRequest) XXX_Size() int {
+	return xxx_messageInfo_StdinStreamRequest.Size(m)
+}
+func (m *StdinStreamRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StdinStreamRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StdinStreamRequest proto.InternalMessageInfo
+
+func (m *StdinStreamRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type StdinStreamResponse struct {
+	Message              []byte   `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StdinStreamResponse) Reset()         { *m = StdinStreamResponse{} }
+func (m *StdinStreamResponse) String() string { return proto.CompactTextString(m) }
+func (*StdinStreamResponse) ProtoMessage()    {}
+func (*StdinStreamResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_00212fb1f9d3bf1c, []int{5}
+}
+
+func (m *StdinStreamResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StdinStreamResponse.Unmarshal(m, b)
+}
+func (m *StdinStreamResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StdinStreamResponse.Marshal(b, m, deterministic)
+}
+func (m *StdinStreamResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StdinStreamResponse.Merge(m, src)
+}
+func (m *StdinStreamResponse) XXX_Size() int {
+	return xxx_messageInfo_StdinStreamResponse.Size(m)
+}
+func (m *StdinStreamResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StdinStreamResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StdinStreamResponse proto.InternalMessageInfo
+
+func (m *StdinStreamResponse) GetMessage() []byte {
+	if m != nil {
+		return m.Message
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*HelloRequest)(nil), "HelloRequest")
 	proto.RegisterType((*HelloResponse)(nil), "HelloResponse")
 	proto.RegisterType((*HelloStreamRequest)(nil), "HelloStreamRequest")
 	proto.RegisterType((*HelloStreamResponse)(nil), "HelloStreamResponse")
+	proto.RegisterType((*StdinStreamRequest)(nil), "StdinStreamRequest")
+	proto.RegisterType((*StdinStreamResponse)(nil), "StdinStreamResponse")
 }
 
 func init() { proto.RegisterFile("api.proto", fileDescriptor_00212fb1f9d3bf1c) }
 
 var fileDescriptor_00212fb1f9d3bf1c = []byte{
-	// 168 bytes of a gzipped FileDescriptorProto
+	// 202 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4c, 0x2c, 0xc8, 0xd4,
 	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x57, 0x52, 0xe2, 0xe2, 0xf1, 0x48, 0xcd, 0xc9, 0xc9, 0x0f, 0x4a,
 	0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x12, 0xe2, 0x62, 0xc9, 0x4b, 0xcc, 0x4d, 0x95, 0x60, 0x54,
 	0x60, 0xd4, 0xe0, 0x0c, 0x02, 0xb3, 0x95, 0x34, 0xb9, 0x78, 0xa1, 0x6a, 0x8a, 0x0b, 0xf2, 0xf3,
 	0x8a, 0x53, 0x85, 0x24, 0xb8, 0xd8, 0x73, 0x53, 0x8b, 0x8b, 0x13, 0xd3, 0x61, 0xea, 0x60, 0x5c,
 	0x25, 0x0d, 0x2e, 0x21, 0xb0, 0xd2, 0xe0, 0x92, 0xa2, 0xd4, 0xc4, 0x5c, 0x7c, 0x86, 0xea, 0x73,
-	0x09, 0xa3, 0xa8, 0x24, 0x64, 0xb4, 0x51, 0x2e, 0x17, 0xb3, 0x63, 0x41, 0xa6, 0x90, 0x06, 0x17,
-	0x2b, 0x58, 0x9f, 0x10, 0xaf, 0x1e, 0xb2, 0xc3, 0xa5, 0xf8, 0xf4, 0x50, 0xdc, 0xa8, 0xc4, 0x20,
-	0x64, 0xc3, 0xc5, 0x8d, 0x64, 0x83, 0x90, 0xb0, 0x1e, 0xa6, 0xcb, 0xa4, 0x44, 0xf4, 0xb0, 0x38,
-	0x42, 0x89, 0xc1, 0x80, 0x31, 0x89, 0x0d, 0x1c, 0x3e, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff,
-	0x60, 0xba, 0x24, 0x12, 0x2c, 0x01, 0x00, 0x00,
+	0x09, 0xa3, 0xa8, 0x24, 0xc6, 0xe8, 0xe0, 0x92, 0x94, 0xcc, 0x3c, 0xa2, 0x8c, 0x46, 0x51, 0x89,
+	0xdd, 0x68, 0x1e, 0xb8, 0xd1, 0x46, 0xab, 0x19, 0xb9, 0x98, 0x1d, 0x0b, 0x32, 0x85, 0x34, 0xb8,
+	0x58, 0xc1, 0x6e, 0x12, 0xe2, 0xd5, 0x43, 0x0e, 0x14, 0x29, 0x3e, 0x3d, 0x14, 0xff, 0x2b, 0x31,
+	0x08, 0xd9, 0x70, 0x71, 0x23, 0xb9, 0x5e, 0x48, 0x58, 0x0f, 0xd3, 0xd7, 0x52, 0x22, 0x7a, 0x58,
+	0x3c, 0xa8, 0xc4, 0x60, 0xc0, 0x08, 0xd2, 0x8d, 0xe4, 0x40, 0x21, 0x61, 0x3d, 0x4c, 0x8f, 0x49,
+	0x89, 0xe8, 0x61, 0xf1, 0x03, 0x48, 0x77, 0x12, 0x1b, 0x38, 0xe6, 0x8c, 0x01, 0x01, 0x00, 0x00,
+	0xff, 0xff, 0x61, 0x81, 0x44, 0x68, 0xc6, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -219,6 +301,7 @@ const _ = grpc.SupportPackageIsVersion4
 type ApiClient interface {
 	Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
 	HelloStream(ctx context.Context, in *HelloStreamRequest, opts ...grpc.CallOption) (Api_HelloStreamClient, error)
+	StdinStream(ctx context.Context, in *StdinStreamRequest, opts ...grpc.CallOption) (Api_StdinStreamClient, error)
 }
 
 type apiClient struct {
@@ -270,10 +353,43 @@ func (x *apiHelloStreamClient) Recv() (*HelloStreamResponse, error) {
 	return m, nil
 }
 
+func (c *apiClient) StdinStream(ctx context.Context, in *StdinStreamRequest, opts ...grpc.CallOption) (Api_StdinStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Api_serviceDesc.Streams[1], "/Api/StdinStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &apiStdinStreamClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Api_StdinStreamClient interface {
+	Recv() (*StdinStreamResponse, error)
+	grpc.ClientStream
+}
+
+type apiStdinStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *apiStdinStreamClient) Recv() (*StdinStreamResponse, error) {
+	m := new(StdinStreamResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ApiServer is the server API for Api service.
 type ApiServer interface {
 	Hello(context.Context, *HelloRequest) (*HelloResponse, error)
 	HelloStream(*HelloStreamRequest, Api_HelloStreamServer) error
+	StdinStream(*StdinStreamRequest, Api_StdinStreamServer) error
 }
 
 // UnimplementedApiServer can be embedded to have forward compatible implementations.
@@ -285,6 +401,9 @@ func (*UnimplementedApiServer) Hello(ctx context.Context, req *HelloRequest) (*H
 }
 func (*UnimplementedApiServer) HelloStream(req *HelloStreamRequest, srv Api_HelloStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method HelloStream not implemented")
+}
+func (*UnimplementedApiServer) StdinStream(req *StdinStreamRequest, srv Api_StdinStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method StdinStream not implemented")
 }
 
 func RegisterApiServer(s *grpc.Server, srv ApiServer) {
@@ -330,6 +449,27 @@ func (x *apiHelloStreamServer) Send(m *HelloStreamResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Api_StdinStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StdinStreamRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ApiServer).StdinStream(m, &apiStdinStreamServer{stream})
+}
+
+type Api_StdinStreamServer interface {
+	Send(*StdinStreamResponse) error
+	grpc.ServerStream
+}
+
+type apiStdinStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *apiStdinStreamServer) Send(m *StdinStreamResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 var _Api_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "Api",
 	HandlerType: (*ApiServer)(nil),
@@ -343,6 +483,11 @@ var _Api_serviceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "HelloStream",
 			Handler:       _Api_HelloStream_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StdinStream",
+			Handler:       _Api_StdinStream_Handler,
 			ServerStreams: true,
 		},
 	},

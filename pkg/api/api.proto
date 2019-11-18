@@ -16,7 +16,16 @@ message HelloStreamResponse {
     string message = 1;
 }
 
+message StdinStreamRequest {
+    string name = 1;
+}
+
+message StdinStreamResponse {
+    bytes message = 1;
+}
+
 service Api {
     rpc Hello(HelloRequest) returns (HelloResponse) {}
     rpc HelloStream(HelloStreamRequest) returns (stream HelloStreamResponse) {}
+    rpc StdinStream(StdinStreamRequest) returns (stream StdinStreamResponse) {}
 }

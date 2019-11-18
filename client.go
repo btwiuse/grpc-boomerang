@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -22,6 +21,24 @@ import (
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
+
+/*
+[client]
+
+websocketSide  <= io.Pipe =>  grpcSide = (grpc.Serve)
+
+(raw data)
+
+^ goroutine 1
+v goroutine 2
+
+(binary message)
+
+|| websocket
+
+[server]
+
+*/
 
 func main() {
 	flag.Parse()
@@ -43,11 +60,8 @@ func main() {
 
 	done := make(chan struct{})
 	data := make([]byte, 10*1024*1024)
-	var wg sync.WaitGroup
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		defer c.Close()
 		defer close(done)
 		for {
@@ -75,9 +89,7 @@ func main() {
 		}
 	}()
 
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		for {
 			n, err := websocketSide.Read(data)
 			if err != nil {
@@ -93,39 +105,15 @@ func main() {
 		}
 	}()
 
+	// client side grpc server over net.Conn over websocket.Conn
 	l := &singleListener{grpcSide}
 	grpcServer := grpc.NewServer()
 	api.RegisterApiServer(grpcServer, &apiService{})
-	grpcServer.Serve(l)
-
-	for {
-		select {
-		/*
-			case t := <-ticker.C:
-				err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
-				if err != nil {
-					log.Println("write:", err)
-					return
-				}
-		*/
-		case <-interrupt:
-			log.Println("interrupt")
-			// To cleanly close a connection, a client should send a close
-			// frame and wait for the server to close the connection.
-			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-			if err != nil {
-				log.Println("write close:", err)
-				return
-			}
-			select {
-			case <-done:
-				wg.Wait()
-			case <-time.After(time.Second):
-			}
-			c.Close()
-			return
-		}
+	err = grpcServer.Serve(l)
+	if err != nil {
+		log.Println("grpcServer.Serve", err)
 	}
+	select {}
 }
 
 type singleListener struct {
@@ -133,11 +121,13 @@ type singleListener struct {
 }
 
 func (s *singleListener) Accept() (net.Conn, error) {
-	log.Println("Accept")
-	if c := s.conn; c != nil {
+	if s.conn != nil {
+		log.Println("Accept")
+		c := s.conn
 		s.conn = nil
 		return c, nil
 	}
+	log.Println("Reject")
 	return nil, io.EOF
 }
 
@@ -159,7 +149,29 @@ func (s *apiService) Hello(ctx context.Context, in *api.HelloRequest) (*api.Hell
 func (s *apiService) HelloStream(in *api.HelloStreamRequest, stream api.Api_HelloStreamServer) error {
 	for i := 0; i < 10; i++ {
 		err := stream.Send(&api.HelloStreamResponse{Message: fmt.Sprintf("Hello %d: %s", i, in.GetName())})
-		time.Sleep(1 * time.Second)
+		time.Sleep(0 * time.Second)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *apiService) StdinStream(in *api.StdinStreamRequest, stream api.Api_StdinStreamServer) error {
+	buf := make([]byte, 1<<16)
+	file, err := os.Open(in.Name)
+	if err != nil {
+		return err
+	}
+	for {
+		n, err := file.Read(buf)
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		err = stream.Send(&api.StdinStreamResponse{Message: buf[:n]})
 		if err != nil {
 			return err
 		}
