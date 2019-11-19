@@ -1,7 +1,25 @@
 // +build ignore
 
-// client:
-// docker run -it -v $PWD/index:/index -v $PWD/log:/log --env-file=config .env --net=host navigaid/grpcox
+/*
+# https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md
+
+web-ui client:
+$ docker run -it -v $PWD/index:/index -v $PWD/log:/log --env-file=config .env --net=host navigaid/grpcox
+
+command-line client:
+$ grpc_cli ls localhost:8080
+$ grpc_cli ls localhost:8080 Api.Probe -l
+  rpc Probe(Ping) returns (Pong) {}
+$ grpc_cli ls localhost:8080 Api.HtopStream -l
+  rpc HtopStream(HtopStreamRequest) returns (stream HtopStreamResponse) {}
+$ </dev/null grpc_cli call localhost:8080 Api.HtopStream
+  ...
+$ </dev/null grpc_cli call localhost:8080 Api.Probe
+connecting to localhost:8080
+
+Rpc succeeded with OK status
+
+*/
 
 package main
 
@@ -12,10 +30,10 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/reflection"
 
 	"github.com/btwiuse/grpc-boomerang/pkg/api"
 	"github.com/btwiuse/grpc-boomerang/pkg/api/impl"
-	"google.golang.org/grpc/reflection"
 )
 
 var (
