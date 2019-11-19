@@ -1,33 +1,10 @@
 // +build ignore
 
-/*
-# https://github.com/grpc/grpc-go/blob/master/Documentation/server-reflection-tutorial.md
-
-web-ui client:
-$ docker run -it -v $PWD/index:/index -v $PWD/log:/log --env-file=config .env --net=host navigaid/grpcox
-
-command-line client:
-$ grpc_cli ls localhost:8080
-$ grpc_cli ls localhost:8080 Api.Probe -l
-  rpc Probe(Ping) returns (Pong) {}
-$ grpc_cli ls localhost:8080 Api.HtopStream -l
-  rpc HtopStream(HtopStreamRequest) returns (stream HtopStreamResponse) {}
-$ </dev/null grpc_cli call localhost:8080 Api.HtopStream
-  ...
-$ </dev/null grpc_cli call localhost:8080 Api.Probe
-connecting to localhost:8080
-
-Rpc succeeded with OK status
-
-*/
-
 package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
-	// "net"
 	"net/http"
 
 	"google.golang.org/grpc"
@@ -50,42 +27,21 @@ func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	log.Println("listening on", *addr)
-	/*
-	ln, err := net.Listen("tcp", *addr)
-	if err != nil {
-		log.Fatalln(err)
-	}
 
-		creds, err = credentials.NewServerTLSFromFile("localhost.pem", "localhost-key.pem")
-		if err != nil {
-			log.Fatalln("bad credentials:", err)
-		}
-	*/
-
-	options := []grpc.ServerOption{
-		// grpc.Creds(creds),
-	}
-	grpcServer := grpc.NewServer(options...)
+	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 	api.RegisterApiServer(grpcServer, &impl.ApiService{})
 
-	wrappedServer := grpcweb.WrapServer(grpcServer,
-		grpcweb.WithAllowedRequestHeaders([]string{
-			"x-grpc-web",
-		}),
-	)
+	wrappedServer := grpcweb.WrapServer(grpcServer)
 
 	http.Handle("/", http.FileServer(http.Dir("ts")))
 	http.Handle("/Api/", wrappedServer)
 
 	httpServer := http.Server{
-		Addr:    fmt.Sprintf(":%d", 9090),
-		// Handler: cors.Default().Handler(http.HandlerFunc(handler)),
+		Addr:    *addr,
 		Handler: http.DefaultServeMux,
 	}
 
-	// _ = ln
-	// grpcServer.Serve(ln)
 	if err := httpServer.ListenAndServe(); err != nil {
 		grpclog.Fatalf("failed starting http server: %v", err)
 	}
