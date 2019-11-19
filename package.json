@@ -1,0 +1,28 @@
+{
+  "name": "grpc-boomerang",
+  "version": "0.11.0",
+  "private": true,
+  "scripts": {
+    "generate_cert": "mkcert localhost",
+    "build:proto": "(cd ./pkg/api; ./protogen.sh)",
+    "webpack-dev:tls": "cd ts && export USE_TLS=true && webpack-dev-server --colors --watch --hot --inline --port 8082 --host 0.0.0.0 --output-public-path=https://localhost:8082/build/ --https --cert=../localhost.pem --key=../localhost-key.pem",
+    "webpack-dev": "cd ts && webpack-dev-server --colors --watch --hot --inline --port 8081 --host 0.0.0.0 --output-public-path=http://localhost:8081/build/",
+    "start:tls": "npm run build:proto && concurrently --kill-others \"go run svr.go --enable_tls=true\" \"npm run webpack-dev:tls\"",
+    "start": "npm run build:proto && concurrently --kill-others \"go run grpcsvr.go\" \"npm run webpack-dev\""
+  },
+  "license": "none",
+  "dependencies": {
+    "@improbable-eng/grpc-web": "^0.11.0",
+    "google-protobuf": "^3.10.0"
+  },
+  "devDependencies": {
+    "@types/google-protobuf": "^3.2.5",
+    "concurrently": "^4.1.0",
+    "ts-loader": "^6.0.1",
+    "ts-protoc-gen": "0.10.0",
+    "typescript": "3.5.1",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.1.7"
+  }
+}
