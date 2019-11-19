@@ -1,6 +1,6 @@
 import {grpc} from "@improbable-eng/grpc-web";
-import {Api} from "../proto/api_pb_service";
-import {Ping, HelloRequest, HelloResponse, HelloStreamRequest, HelloStreamResponse } from "../proto/api_pb";
+import {Api} from "../../pkg/api/api_pb_service";
+import {Ping, HelloRequest, HelloResponse, HelloStreamRequest, HelloStreamResponse } from "../../pkg/api/api_pb";
 
 declare const USE_TLS: boolean;
 const host = USE_TLS ? "https://localhost:9091" : "http://localhost:9090";
