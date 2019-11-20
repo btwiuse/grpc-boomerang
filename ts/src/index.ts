@@ -1,9 +1,8 @@
 import {grpc} from "@improbable-eng/grpc-web";
 import {Api} from "../../pkg/api/api_pb_service";
-import {Ping, HelloRequest, HelloResponse, HelloStreamRequest, HelloStreamResponse } from "../../pkg/api/api_pb";
+import {Ping, HelloRequest, HelloResponse, HelloStreamRequest, HelloStreamResponse , HtopStreamRequest, HtopStreamResponse} from "../../pkg/api/api_pb";
 
-declare const USE_TLS: boolean;
-const host = USE_TLS ? "https://localhost:9091" : "http://localhost:9090";
+const host = "//localhost:9090";
 
 function hello() {
   const helloRequest = new HelloRequest();
@@ -29,18 +28,25 @@ function helloStream() {
   const client = grpc.client(Api.HelloStream, {
     host: host,
   });
-  client.onHeaders((headers: grpc.Metadata) => {
-    console.log("helloStream.onHeaders", headers);
-  });
   client.onMessage((message: HelloStreamResponse) => {
-    console.log("helloStream.onMessage", message.toObject());
-  });
-  client.onEnd((code: grpc.Code, msg: string, trailers: grpc.Metadata) => {
-    console.log("helloStream.onEnd", code, msg, trailers);
+    console.log(message.toObject().message);
   });
   client.start();
   client.send(helloStreamRequest);
 }
 
-hello();
-helloStream();
+function htopStream() {
+  const htopStreamRequest = new HtopStreamRequest();
+  const client = grpc.client(Api.HtopStream, {
+    host: host,
+  });
+  client.onMessage((message: HtopStreamResponse) => {
+    console.log(message.toObject().message);
+  });
+  client.start();
+  client.send(htopStreamRequest);
+}
+
+// hello();
+// helloStream();
+htopStream();
