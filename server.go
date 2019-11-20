@@ -5,15 +5,17 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net"
-	"time"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
 	"github.com/btwiuse/grpc-boomerang/pkg/api"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var (
@@ -90,6 +92,14 @@ func toClientConn(c net.Conn) *grpc.ClientConn {
 }
 
 func handle(c net.Conn) {
+	oldState, _ := terminal.MakeRaw(0)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer func(){
+		terminal.Restore(0, oldState)
+	}()
+
 	log.Println("new client:", c.RemoteAddr())
 	ctx, a := pipe(c)
 	cc := toClientConn(a)
@@ -104,14 +114,20 @@ func handle(c net.Conn) {
 
 	log.Println("new sendClient:", sendClient)
 
-	go func(){
-		emptyMsg := &api.Message{Type: []byte{0}, Body: []byte{}}
-		for range time.Tick(time.Second){
-			log.Println("sending empty message", emptyMsg.Type, emptyMsg.Body)
-			err := sendClient.Send(emptyMsg)
+	go func() {
+		buf := make([]byte, 1024)
+		for {
+			n, err := os.Stdin.Read(buf)
 			if err != nil {
 				log.Println(err)
 				break
+			}
+
+			inputMsg := &api.Message{Type: []byte{2}, Body: buf[:n]}
+			err = sendClient.Send(inputMsg)
+			if err != nil {
+				log.Println(err)
+				continue
 			}
 		}
 	}()
@@ -122,67 +138,12 @@ func handle(c net.Conn) {
 			log.Println("client dead:", c.RemoteAddr())
 			return
 		default:
-			// log.Println("receiving message")
 			resp, err := sendClient.Recv()
-			if err == io.EOF {
-				// log.Println("received empty message")
-				println(".")
-				break
-			}
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			log.Println("received non empty message", resp.Type, resp.Body)
+			fmt.Printf("%s", resp.Body)
 		}
 	}
 }
-
-/*
-{
-	streamRequest := &api.StdinStreamRequest{Name: string(l)}
-	log.Println("sending StdinStreamRequest")
-	streamResponse, err := client.StdinStream(context.Background(), streamRequest)
-	if err != nil {
-		log.Fatalf("%v.StdinStream(_) = _, %v", client, err)
-	}
-
-	for i := 0; ; i++ {
-		streamResponseItem, err := streamResponse.Recv()
-		if err != nil {
-			log.Printf("streamResponse.Recv() %v\n", err)
-			break
-		}
-		log.Println(i, "StdinStreamResponse", len(streamResponseItem.Message))
-	}
-}
-{
-	streamRequest := &api.HelloStreamRequest{Name: string(l)}
-	log.Println("sending HelloStreamRequest")
-	streamResponse, err := client.HelloStream(context.Background(), streamRequest)
-	if err != nil {
-		log.Fatalf("%v.HelloStream(_) = _, %v", client, err)
-	}
-
-	for {
-		streamResponseItem, err := streamResponse.Recv()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			log.Fatalf("streamResponse.Recv() %v", err)
-		}
-		log.Println("HelloStreamResponse", streamResponseItem)
-	}
-}
-{
-	request := &api.HelloRequest{Name: string(l)}
-	log.Println("sending HelloRequest")
-	response, err := client.Hello(context.Background(), request)
-	if err != nil {
-		log.Println(err.Error())
-		continue
-	}
-	log.Println("HelloResponse" + response.GetMessage())
-}
-*/
