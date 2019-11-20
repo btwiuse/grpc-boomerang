@@ -195,3 +195,31 @@ export namespace HtopStreamResponse {
   }
 }
 
+export class Message extends jspb.Message {
+  getType(): Uint8Array | string;
+  getType_asU8(): Uint8Array;
+  getType_asB64(): string;
+  setType(value: Uint8Array | string): void;
+
+  getBody(): Uint8Array | string;
+  getBody_asU8(): Uint8Array;
+  getBody_asB64(): string;
+  setBody(value: Uint8Array | string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Message.AsObject;
+  static toObject(includeInstance: boolean, msg: Message): Message.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: Message, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Message;
+  static deserializeBinaryFromReader(message: Message, reader: jspb.BinaryReader): Message;
+}
+
+export namespace Message {
+  export type AsObject = {
+    type: Uint8Array | string,
+    body: Uint8Array | string,
+  }
+}
+

@@ -243,3 +243,72 @@ ApiClient.prototype.htopStream = function htopStream(requestMessage, metadata) {
 
 exports.ApiClient = ApiClient;
 
+var BidiStream = (function () {
+  function BidiStream() {}
+  BidiStream.serviceName = "BidiStream";
+  return BidiStream;
+}());
+
+BidiStream.Send = {
+  methodName: "Send",
+  service: BidiStream,
+  requestStream: true,
+  responseStream: true,
+  requestType: api_pb.Message,
+  responseType: api_pb.Message
+};
+
+exports.BidiStream = BidiStream;
+
+function BidiStreamClient(serviceHost, options) {
+  this.serviceHost = serviceHost;
+  this.options = options || {};
+}
+
+BidiStreamClient.prototype.send = function send(metadata) {
+  var listeners = {
+    data: [],
+    end: [],
+    status: []
+  };
+  var client = grpc.client(BidiStream.Send, {
+    host: this.serviceHost,
+    metadata: metadata,
+    transport: this.options.transport
+  });
+  client.onEnd(function (status, statusMessage, trailers) {
+    listeners.status.forEach(function (handler) {
+      handler({ code: status, details: statusMessage, metadata: trailers });
+    });
+    listeners.end.forEach(function (handler) {
+      handler({ code: status, details: statusMessage, metadata: trailers });
+    });
+    listeners = null;
+  });
+  client.onMessage(function (message) {
+    listeners.data.forEach(function (handler) {
+      handler(message);
+    })
+  });
+  client.start(metadata);
+  return {
+    on: function (type, handler) {
+      listeners[type].push(handler);
+      return this;
+    },
+    write: function (requestMessage) {
+      client.send(requestMessage);
+      return this;
+    },
+    end: function () {
+      client.finishSend();
+    },
+    cancel: function () {
+      listeners = null;
+      client.close();
+    }
+  };
+};
+
+exports.BidiStreamClient = BidiStreamClient;
+

@@ -12,6 +12,34 @@ import (
 	"github.com/btwiuse/wetty/localcmd"
 )
 
+type BidiStream struct{}
+
+func (bs *BidiStream) Send(sendServer api.BidiStream_SendServer) error {
+	// send
+	go func(){
+                emptyMsg := &api.Message{Type: []byte{1}, Body: []byte{}}
+		for range time.Tick(time.Second) {
+                        log.Println("sending empty message", emptyMsg.Type, emptyMsg.Body)
+                        err := sendServer.Send(emptyMsg)
+                        if err != nil {
+                                log.Println(err)
+                                break
+                        }
+		}
+	}()
+
+	// recv
+	for {
+		msg, err := sendServer.Recv()
+		if err != nil {
+			return nil
+		}
+		log.Println(msg.Type, msg.Body)
+	}
+
+	return nil
+}
+
 // apiService acts as the real grpc request handler
 // ============================= api impl
 type ApiService struct{}

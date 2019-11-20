@@ -42,6 +42,7 @@ func main() {
 	}
 	grpcServer := grpc.NewServer(options...)
 	api.RegisterApiServer(grpcServer, &impl.ApiService{})
+	api.RegisterBidiStreamServer(grpcServer, &impl.BidiStream{})
 	grpcServer.Serve(&singleListener{pipe(c)})
 }
 

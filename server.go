@@ -5,10 +5,10 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	addr = flag.String("addr", "localhost:8443", "http service address")
+	addr  = flag.String("addr", "localhost:8443", "http service address")
 	creds credentials.TransportCredentials
 )
 
@@ -92,14 +92,29 @@ func toClientConn(c net.Conn) *grpc.ClientConn {
 func handle(c net.Conn) {
 	log.Println("new client:", c.RemoteAddr())
 	ctx, a := pipe(c)
-	client := api.NewApiClient(toClientConn(a))
+	cc := toClientConn(a)
+	bidiStreamClient := api.NewBidiStreamClient(cc)
 
-	streamRequest := &api.HtopStreamRequest{}
-	log.Println("sending HtopStreamRequest")
-	streamResponse, err := client.HtopStream(context.Background(), streamRequest)
+	log.Println("new bidiStreamClient:", bidiStreamClient)
+
+	sendClient, err := bidiStreamClient.Send(ctx)
 	if err != nil {
-		log.Fatalf("%v.HtopStream(_) = _, %v", client, err)
+		log.Fatalln(bidiStreamClient, err)
 	}
+
+	log.Println("new sendClient:", sendClient)
+
+	go func(){
+		emptyMsg := &api.Message{Type: []byte{0}, Body: []byte{}}
+		for range time.Tick(time.Second){
+			log.Println("sending empty message", emptyMsg.Type, emptyMsg.Body)
+			err := sendClient.Send(emptyMsg)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+		}
+	}()
 
 	for {
 		select {
@@ -107,15 +122,18 @@ func handle(c net.Conn) {
 			log.Println("client dead:", c.RemoteAddr())
 			return
 		default:
-			streamResponseItem, err := streamResponse.Recv()
+			// log.Println("receiving message")
+			resp, err := sendClient.Recv()
 			if err == io.EOF {
+				// log.Println("received empty message")
+				println(".")
 				break
 			}
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			fmt.Printf("%s", streamResponseItem.Message)
+			log.Println("received non empty message", resp.Type, resp.Body)
 		}
 	}
 }

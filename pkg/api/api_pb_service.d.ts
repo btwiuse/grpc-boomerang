@@ -58,6 +58,20 @@ export class Api {
   static readonly HtopStream: ApiHtopStream;
 }
 
+type BidiStreamSend = {
+  readonly methodName: string;
+  readonly service: typeof BidiStream;
+  readonly requestStream: true;
+  readonly responseStream: true;
+  readonly requestType: typeof api_pb.Message;
+  readonly responseType: typeof api_pb.Message;
+};
+
+export class BidiStream {
+  static readonly serviceName: string;
+  static readonly Send: BidiStreamSend;
+}
+
 export type ServiceError = { message: string, code: number; metadata: grpc.Metadata }
 export type Status = { details: string, code: number; metadata: grpc.Metadata }
 
@@ -111,5 +125,12 @@ export class ApiClient {
   helloStream(requestMessage: api_pb.HelloStreamRequest, metadata?: grpc.Metadata): ResponseStream<api_pb.HelloStreamResponse>;
   stdinStream(requestMessage: api_pb.StdinStreamRequest, metadata?: grpc.Metadata): ResponseStream<api_pb.StdinStreamResponse>;
   htopStream(requestMessage: api_pb.HtopStreamRequest, metadata?: grpc.Metadata): ResponseStream<api_pb.HtopStreamResponse>;
+}
+
+export class BidiStreamClient {
+  readonly serviceHost: string;
+
+  constructor(serviceHost: string, options?: grpc.RpcOptions);
+  send(metadata?: grpc.Metadata): BidirectionalStream<api_pb.Message, api_pb.Message>;
 }
 

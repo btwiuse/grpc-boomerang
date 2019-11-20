@@ -41,3 +41,44 @@ service Api {
     rpc StdinStream(StdinStreamRequest) returns (stream StdinStreamResponse) {}
     rpc HtopStream(HtopStreamRequest) returns (stream HtopStreamResponse) {}
 }
+
+// can grpc-web client listen on server requests?
+/*
+service Hub {
+    rpc ResizeTerminal(stream ResizeRequest) returns () {}
+    rpc Input(stream InputRequest) returns () {}
+
+    rpc Output(stream OutputRequest)
+}
+
+service Client {
+    rpc Output(stream OutputRequest)
+    rpc Close()
+}
+
+service Slave {
+    rpc ResizeTerminal(stream OutputRequest)
+    rpc Input(stream OutputRequest)
+    rpc Close()
+}
+
+or
+
+service Slave/Hub/Client {
+    rpc Send(stream Message) return (stream Message) {};
+}
+
+message Message {
+    string type = 1;
+    string body = 2;
+}
+*/
+
+service BidiStream {
+    rpc Send(stream Message) returns (stream Message) {};
+}
+
+message Message {
+    bytes type = 1;
+    bytes body = 2;
+}
