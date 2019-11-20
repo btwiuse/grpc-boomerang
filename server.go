@@ -10,11 +10,14 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
 	"github.com/btwiuse/grpc-boomerang/pkg/api"
+	"github.com/btwiuse/wetty/wetty"
+	"github.com/kr/pty"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -92,11 +95,11 @@ func toClientConn(c net.Conn) *grpc.ClientConn {
 }
 
 func handle(c net.Conn) {
-	oldState, _ := terminal.MakeRaw(0)
+	oldState, err := terminal.MakeRaw(0)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer func(){
+	defer func() {
 		terminal.Restore(0, oldState)
 	}()
 
@@ -115,6 +118,25 @@ func handle(c net.Conn) {
 	log.Println("new sendClient:", sendClient)
 
 	go func() {
+		for range time.Tick(time.Second) {
+			rows, cols, err := pty.Getsize(os.Stdin)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+
+			json := fmt.Sprintf(`{"Cols": %d, "Rows": %d}`, cols, rows)
+
+			resizeMsg := &api.Message{Type: []byte{wetty.ResizeTerminal}, Body: []byte(json)}
+			err = sendClient.Send(resizeMsg)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+		}
+	}()
+
+	go func() {
 		buf := make([]byte, 1024)
 		for {
 			n, err := os.Stdin.Read(buf)
@@ -123,7 +145,7 @@ func handle(c net.Conn) {
 				break
 			}
 
-			inputMsg := &api.Message{Type: []byte{2}, Body: buf[:n]}
+			inputMsg := &api.Message{Type: []byte{wetty.Input}, Body: buf[:n]}
 			err = sendClient.Send(inputMsg)
 			if err != nil {
 				log.Println(err)
